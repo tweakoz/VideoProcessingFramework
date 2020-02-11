@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 project(PyNvCodec)
 add_subdirectory(TC)
@@ -44,12 +44,14 @@ set(GENERATE_PYTHON_BINDINGS FALSE CACHE BOOL "Generate VPF Python bindings")
 if(GENERATE_PYTHON_BINDINGS)
 	find_package (Python COMPONENTS Interpreter Development)
 	if(Python_FOUND)
+
+		MESSAGE("${Python_SITEARCH}")
+		SET( SITEDEST ${Python_SITEARCH}/vpf )
 		#Adding pybind11 stuff;
-		add_subdirectory(pybind11-2.1.1)
+		FIND_PACKAGE( pybind11 REQUIRED )
 
 		#Adding path to Python & pybind11 headers;
-		set(PYBIND_INDLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pybind11-2.1.1/include)
-		include_directories(${PYBIND_INDLUDE_DIR})
+		include_directories(${PYBIND11_INCLUDE_DIRS})
 		include_directories(${PYTHON_INCLUDE_DIR})
 
 		#Add target;
@@ -78,3 +80,16 @@ set (AVFORMAT_LIBRARY         ${AVFORMAT_LIBRARY}         PARENT_SCOPE)
 set (SWRESAMPLE_LIBRARY       ${SWRESAMPLE_LIBRARY}       PARENT_SCOPE)
 
 set (GENERATE_PYTHON_BINDINGS ${GENERATE_PYTHON_BINDINGS} PARENT_SCOPE)
+
+if(GENERATE_PYTHON_BINDINGS)
+	set( PERMS OWNER_EXECUTE OWNER_WRITE OWNER_READ )
+	install(FILES $<TARGET_FILE:PyNvCodec> PERMISSIONS ${PERMS} RENAME vpf.so DESTINATION ${SITEDEST} )
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/__init__.py			DESTINATION ${SITEDEST} )
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/samples/SampleDecode.py			DESTINATION share/vpf )
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/samples/SampleEncode.py			DESTINATION share/vpf )
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/samples/SampleTranscode.py		DESTINATION share/vpf )
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/samples/SampleFrameUpload.py		DESTINATION share/vpf )
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/samples/SampleColorConversion.py	DESTINATION share/vpf )
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/samples/SampleSufraceDownload.py	DESTINATION share/vpf )
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/samples/SampleTranscodeOneToN.py	DESTINATION share/vpf )
+endif(GENERATE_PYTHON_BINDINGS)
