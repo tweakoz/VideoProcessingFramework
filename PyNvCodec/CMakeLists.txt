@@ -42,7 +42,7 @@ include_directories(${VIDEO_CODEC_SDK_INCLUDE_DIR})
 #Set up python bindings;
 set(GENERATE_PYTHON_BINDINGS FALSE CACHE BOOL "Generate VPF Python bindings")
 if(GENERATE_PYTHON_BINDINGS)
-	find_package (Python3 COMPONENTS Interpreter Development)
+	find_package (Python COMPONENTS Interpreter Development)
 	if(Python_FOUND)
 
 		MESSAGE("${Python_SITEARCH}")
